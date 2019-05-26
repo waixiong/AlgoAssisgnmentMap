@@ -35,22 +35,33 @@ var urlParams = new URLSearchParams(decodeURIComponent(location.search));
 
 
 function addMarkersToMap(map) {
-    for(var l in locations){
-        map.addObject(new H.map.Marker(locations[l]));
-    }
+  for(var l in locations){
+    map.addObject(new H.map.Marker(locations[l]));
+  }
 }
 
-function addPolylineToMap(map, path) {
-    var paths = path.split(',');
-    var lineString = new H.geo.LineString();
+function styleLine(i){
+  if(i == 0)
+    return { lineWidth: 3, strokeColor: 'rgba(0, 85, 170, 0.8)', lineDash: [], lineDashOffset: 0 };
+  var yellow = 160 - 32 * i;
+  var blue = yellow / 2 + 20;
+  return { lineWidth: 4, strokeColor: 'rgba(192, '+yellow+', '+blue+', 0.6)', lineDash: [20*i], lineDashOffset: 0 }
+}
 
-    paths.forEach(l => {
-        lineString.pushPoint(locations[l]);
+function addPolylineToMap(map, paths) {
+  var pathList = paths.split('|');
+  for(var i = 0; i < pathList.length; i++){
+    path = pathList[i].split(',');
+    var lineString = new H.geo.LineString();
+    
+    path.forEach(l => {
+      lineString.pushPoint(locations[l]);
     });
 
     map.addObject(new H.map.Polyline(
-        lineString, { style: { lineWidth: 6 }}
+      lineString, { style: styleLine(i) }
     ));
+  }
 }
 
 
@@ -88,7 +99,7 @@ var ui = H.ui.UI.createDefault(map, defaultLayers);
 
 // Now use the map as required...
 addMarkersToMap(map);
-addPolylineToMap(map, urlParams.get('path'))
+addPolylineToMap(map, urlParams.get('paths'))
   </script>
 </body>
 </html>
